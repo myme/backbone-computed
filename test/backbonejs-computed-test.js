@@ -121,11 +121,6 @@
 
     '.addProperty': {
 
-      'is a function': function () {
-        var model = new Backbone.Model();
-        assert.isFunction( model.addProperty );
-      },
-
       'returns self': function () {
         var model = new Backbone.Model();
         assert.same( model.addProperty(), model );
