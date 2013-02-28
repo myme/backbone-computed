@@ -1,4 +1,4 @@
-(function ( Backbone, Underscore ) {
+(function ( Backbone, _ ) {
 
   'use strict';
 
