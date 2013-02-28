@@ -117,6 +117,21 @@
         assert.calledOnceWith( spy, this.model, 'fullName' );
       }
 
+    },
+
+    '.addProperty': {
+
+      'is a function': function () {
+        var model = new Backbone.Model();
+        assert.isFunction( model.addProperty );
+      },
+
+      'adds a new instance computed property': function () {
+        var model = new Backbone.Model();
+        model.addProperty( 'foo', function () { return 10; });
+        assert.equals( model.get( 'foo' ), 10 );
+      }
+
     }
 
   });

@@ -9,18 +9,26 @@ this.Backbone.Model = (function ( Model, _ ) {
 
     // Override Boostrap's default constructor, setting up listeners for dependencies.
     constructor: function () {
-      var computedProps = this._computedProps;
+      var classProps = this._computedProps;
+      var computedProps = this._computedProps = {};
       var prop, deps, l;
 
       this._cachedProps = {};
 
-      for ( prop in computedProps ) {
-        if ( computedProps.hasOwnProperty( prop ) ) {
-          this.setupDepsListeners( prop, computedProps[ prop ].deps );
+      for ( prop in classProps ) {
+        if ( classProps.hasOwnProperty( prop ) ) {
+          this.setupDepsListeners( prop, classProps[ prop ].deps );
+          computedProps[ prop ] = classProps[ prop ];
         }
       }
 
       return Model.apply( this, arguments );
+    },
+
+    addProperty: function ( name, action ) {
+      this._computedProps[ name ] = {
+        action: action
+      };
     },
 
     get: _.wrap( Model.prototype.get, function ( get, attr ) {
