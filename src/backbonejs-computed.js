@@ -96,4 +96,4 @@
     return Class;
   };
 
-}( this.Backbone, this.underscore ));
+}( this.Backbone, this._ ));
