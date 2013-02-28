@@ -52,6 +52,8 @@
   }
 
 
+  // Creates a getter for the class, taking as input
+  // the original getter to wrap
   var genGetter = function ( get ) {
     return function ( attr ) {
       var computedProps = this._computedProps;
@@ -68,6 +70,8 @@
   };
 
 
+  // Creates a setter for the class, taking as input
+  // the original setter to wrap
   var genSetter = function ( set ) {
     return function ( attr, value ) {
       var computedProps = this._computedProps;
