@@ -1,8 +1,6 @@
-(function ( Backbone, _ ) {
+this.Backbone.Model = (function ( Model, _ ) {
 
   'use strict';
-
-  var bbExtend = Backbone.Model.extend;
 
 
   function triggerPropChange( ctx, prop ) {
@@ -52,10 +50,27 @@
   }
 
 
-  // Creates a getter for the class, taking as input
-  // the original getter to wrap
-  var wrapGet = function ( get ) {
-    return function ( attr ) {
+  return Model.extend({
+
+    _computedProps: {},
+
+    // Override Boostrap's default constructor, setting up listeners for dependencies.
+    constructor: function () {
+      var computedProps = this._computedProps;
+      var prop, deps, l;
+
+      this._cachedProps = {};
+
+      for ( prop in computedProps ) {
+        if ( computedProps.hasOwnProperty( prop ) ) {
+          setupDepsListeners( this, prop, computedProps[ prop ].deps );
+        }
+      }
+
+      return Model.apply( this, arguments );
+    },
+
+    get: _.wrap( Model.prototype.get, function ( get, attr ) {
       var computedProps = this._computedProps;
       var newValue;
 
@@ -65,20 +80,15 @@
         return newValue;
       }
 
-      return get.apply( this, arguments );
-    };
-  };
+      return get.call( this, attr );
+    }),
 
-
-  // Creates a setter for the class, taking as input
-  // the original setter to wrap
-  var wrapSet = function ( set ) {
-    return function ( attr, value ) {
+    set: _.wrap( Model.prototype.set, function ( set, attr, values ) {
       var computedProps = this._computedProps;
       var newValue;
 
       if ( computedProps[ attr ] ) {
-        newValue = computedProps[ attr ].action.call( this, value );
+        newValue = computedProps[ attr ].action.call( this, values );
         if ( this._cachedProps[ attr ] !== newValue ) {
           this._cachedProps[ attr ] = newValue;
           this.trigger( 'change:' + attr, this, attr );
@@ -86,49 +96,31 @@
         return this;
       }
 
-      return set.apply( this, arguments );
-    };
-  };
+      return set.call( this, attr, values );
+    })
 
+  }, {
 
-  // Override Bootstrap.Model's extend
-  Backbone.Model.extend = function ( properties, classProperties ) {
-    var prop, action, propSpec, deps;
-    var parent = this;
+    // Override Bootstrap.Model's extend
+    extend: _.wrap( Model.extend, function ( extend, properties, classProperties ) {
+      var prop, action, propSpec, deps;
 
-    properties = properties || {};
+      properties = properties || {};
 
-    // Setup computed properties
-    var computedProps = normalizeComputedProps( properties.properties );
-    delete properties.properties;
+      // Setup computed properties
+      var computedProps = normalizeComputedProps( properties.properties );
+      delete properties.properties;
 
-    // Override Boostrap's default constructor, setting up listeners for dependencies.
-    properties.constructor = function () {
-      var computedProps = this._computedProps;
-      var prop, deps, l;
-      this._cachedProps = {};
+      // Extend our class from Boostrap.Model
+      var Class = extend.call( this, properties, classProperties );
 
-      for ( prop in computedProps ) {
-        if ( computedProps.hasOwnProperty( prop ) ) {
-          setupDepsListeners( this, prop, computedProps[ prop ].deps );
-        }
-      }
+      _.extend( Class.prototype, {
+        _computedProps: computedProps
+      });
 
-      return parent.apply( this, arguments );
-    };
+      return Class;
+    })
 
-    // Extend our class from Boostrap.Model
-    var Class = bbExtend.call( this, properties, classProperties );
+  });
 
-    Class.prototype._computedProps = computedProps;
-
-    // Override Bootstrap's default getter
-    Class.prototype.get = wrapGet( Class.prototype.get );
-
-    // Override Bootstrap's default setter
-    Class.prototype.set = wrapSet( Class.prototype.set );
-
-    return Class;
-  };
-
-}( this.Backbone, this._ ));
+}( this.Backbone.Model, this._ ));
