@@ -48,19 +48,17 @@ module.exports = function (grunt) {
       }
     },
 
-    min: {
-      dist: {
-        src: ['<banner:meta.banner>', 'src/**/*.js'],
-        dest: 'dist/backbonejs-computed.min.js'
-      }
-    },
-
     watch: {
       files: ['<%= jshint.files %>'],
       tasks: ['test']
     },
 
-    uglify: {}
+    uglify: {
+      dist: {
+        src: ['<banner:meta.banner>', 'src/**/*.js'],
+        dest: 'dist/backbonejs-computed.min.js'
+      }
+    }
 
   });
 
@@ -71,7 +69,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-buster');
 
   // Default task.
-  grunt.registerTask('default', ['test', 'concat', 'min']);
+  grunt.registerTask('default', ['test', 'concat', 'uglify']);
   grunt.registerTask('test', ['jshint', 'buster']);
 
 };
