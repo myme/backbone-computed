@@ -100,6 +100,20 @@ this.Backbone.Model = (function ( Model, _ ) {
 
   }, {
 
+    addProperty: function ( name, deps, action ) {
+      if ( action === undefined ) {
+        action = deps;
+        deps = [];
+      }
+
+      this.prototype._computedProps[ name ] = {
+        action: action,
+        deps: deps
+      };
+
+      return this;
+    },
+
     // Override Bootstrap.Model's extend
     extend: _.wrap( Model.extend, function ( extend, properties, classProperties ) {
       var prop, action, propSpec, deps;

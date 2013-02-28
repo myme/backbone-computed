@@ -144,6 +144,27 @@
         assert.equals( model.get( 'oof' ), 'xuuq' );
       }
 
+    },
+
+    '.addProperty (class method)': {
+
+      'is a function': function () {
+        var Model = Backbone.Model.extend();
+        assert.isFunction( Model.addProperty );
+      },
+
+      'returns class': function () {
+        var Model = Backbone.Model.extend();
+        assert.same( Model.addProperty(), Model );
+      },
+
+      'adds a new class computed property': function () {
+        var Model = Backbone.Model.extend();
+        Model.addProperty( 'foo', function () { return 10; });
+        var model = new Model();
+        assert.equals( model.get( 'foo' ), 10 );
+      }
+
     }
 
   });
