@@ -54,7 +54,7 @@
 
   // Creates a getter for the class, taking as input
   // the original getter to wrap
-  var genGetter = function ( get ) {
+  var wrapGet = function ( get ) {
     return function ( attr ) {
       var computedProps = this._computedProps;
       var newValue;
@@ -72,7 +72,7 @@
 
   // Creates a setter for the class, taking as input
   // the original setter to wrap
-  var genSetter = function ( set ) {
+  var wrapSet = function ( set ) {
     return function ( attr, value ) {
       var computedProps = this._computedProps;
       var newValue;
@@ -123,10 +123,10 @@
     Class.prototype._computedProps = computedProps;
 
     // Override Bootstrap's default getter
-    Class.prototype.get = genGetter( Class.prototype.get );
+    Class.prototype.get = wrapGet( Class.prototype.get );
 
     // Override Bootstrap's default setter
-    Class.prototype.set = genSetter( Class.prototype.set );
+    Class.prototype.set = wrapSet( Class.prototype.set );
 
     return Class;
   };
