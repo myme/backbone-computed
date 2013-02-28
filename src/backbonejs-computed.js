@@ -18,7 +18,7 @@ this.Backbone.Model = (function ( Model, _ ) {
       for ( prop in classProps ) {
         if ( classProps.hasOwnProperty( prop ) ) {
           propSpec = classProps[ prop ];
-          this.addProperty( prop, propSpec.deps, propSpec.action );
+          this.addProperty( prop, propSpec.depends, propSpec.action );
         }
       }
 
@@ -26,31 +26,31 @@ this.Backbone.Model = (function ( Model, _ ) {
     },
 
     /*
-       .addProperty( name, [deps ,] action )
+       .addProperty( name, [depends ,] action )
 
-         name:   The name of the computed property.
-         deps:   List of properties the new property should
-                 depend on.
-         action: A function for getting and setting the
-                 computed property.
+         name:    The name of the computed property.
+         depends: List of properties the new property should
+                  depend on.
+         action:  A function for getting and setting the
+                  computed property.
 
        Adds a new computed property to the model instance.
      */
 
-    addProperty: function ( name, deps, action ) {
+    addProperty: function ( name, depends, action ) {
       if ( action === undefined ) {
-        action = deps;
-        deps = [];
+        action = depends;
+        depends = [];
       }
 
       var computedProps = this._computedProps;
 
       computedProps[ name ] = {
         action: action,
-        deps: deps
+        depends: depends
       };
 
-      this.setupDepsListeners( name, deps );
+      this.setupDepsListeners( name, depends );
 
       return this;
     },
@@ -84,31 +84,31 @@ this.Backbone.Model = (function ( Model, _ ) {
       return set.call( this, attr, values );
     }),
 
-    setupDepsListeners: function setupDepsListeners( prop, deps ) {
-      deps = deps || [];
+    setupDepsListeners: function setupDepsListeners( prop, depends ) {
+      depends = depends || [];
 
       var context = this;
       var triggerPropChange = function () {
         context.trigger( 'change:' + prop, context, prop );
       };
 
-      var l = deps.length;
+      var l = depends.length;
       while ( l-- ) {
-        this.on( 'change:' + deps[ l ], triggerPropChange );
+        this.on( 'change:' + depends[ l ], triggerPropChange );
       }
     }
 
   }, {
 
-    addProperty: function ( name, deps, action ) {
+    addProperty: function ( name, depends, action ) {
       if ( action === undefined ) {
-        action = deps;
-        deps = [];
+        action = depends;
+        depends = [];
       }
 
       this.prototype._computedProps[ name ] = {
         action: action,
-        deps: deps
+        depends: depends
       };
 
       return this;
@@ -116,7 +116,7 @@ this.Backbone.Model = (function ( Model, _ ) {
 
     // Override Bootstrap.Model's extend
     extend: _.wrap( Model.extend, function ( extend, properties, classProperties ) {
-      var prop, action, propSpec, deps;
+      var prop, action, propSpec, depends;
 
       properties = properties || {};
 
@@ -135,7 +135,7 @@ this.Backbone.Model = (function ( Model, _ ) {
     }),
 
     normalizeComputedProps: function ( computedProps ) {
-      var propSpec, action, prop, deps;
+      var propSpec, action, prop, depends;
       var normalizedProps = {};
 
       if ( ! computedProps ) {
@@ -148,15 +148,15 @@ this.Backbone.Model = (function ( Model, _ ) {
 
           if ( propSpec instanceof Function ) {
             action = propSpec;
-            deps = [];
+            depends = [];
           } else {
             action = propSpec.action;
-            deps = propSpec.depends || [];
+            depends = propSpec.depends || [];
           }
 
           normalizedProps[ prop ] = {
             action: action,
-            deps: deps
+            depends: depends
           };
         }
       }
