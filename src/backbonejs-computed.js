@@ -25,7 +25,6 @@ this.Backbone.Model = (function ( Model, _ ) {
       return Model.apply( this, arguments );
     },
 
-
     /*
        .addProperty( name, [deps ,] action )
 
