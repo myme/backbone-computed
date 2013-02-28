@@ -1,0 +1,25 @@
+{
+  "name": "backbonejs-computed",
+  "version": "0.0.0",
+  "description": "Backbone.js computed properties",
+  "repository": "",
+  "author": "Martin Øinæs Myrseth",
+  "license": "BSD",
+  "dependencies": {
+    "grunt": "*",
+    "grunt-cli": "*",
+    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-contrib-concat": "~0.1.3",
+    "grunt-contrib-uglify": "~0.1.2"
+  },
+  "devDependencies": {
+    "grunt-buster": "*",
+    "grunt-contrib-watch": "~0.3.0",
+    "phantomjs": "*"
+  },
+  "scripts": {
+    "build": "grunt",
+    "test": "grunt test",
+    "watch": "grunt --force test watch"
+  }
+}
