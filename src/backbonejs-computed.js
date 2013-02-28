@@ -43,6 +43,7 @@
     Class.prototype.set = function ( attr, value ) {
       if ( computedProps[ attr ] ) {
         computedProps[ attr ].action.call( this, value );
+        this.trigger( 'change:' + attr, this, attr );
         return this;
       }
       return set.apply( this, arguments );

@@ -50,6 +50,23 @@
         assert.equals( model.get( 'foo' ), 'bar' );
       },
 
+      'change event': function () {
+        var Model = Backbone.Model.extend({
+          properties: {
+            foo: function ( foo ) {
+              if ( arguments.length ) {
+                this._foo = foo;
+              }
+              return this._foo;
+            }
+          }
+        });
+        var model = new Model();
+        var spy = this.spy();
+        model.on('change:foo', spy ).set( 'foo', 'bar' );
+        assert.calledOnceWith( spy, model, 'foo' );
+      }
+
     },
 
     'dependencies': {
