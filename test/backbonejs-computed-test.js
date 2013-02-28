@@ -142,6 +142,18 @@
           .set( 'foo', 'quux' );
         assert.calledWith( spy, model, 'oof' );
         assert.equals( model.get( 'oof' ), 'xuuq' );
+      },
+
+      'adds property which can be set': function () {
+        var model = new Backbone.Model()
+          .addProperty( 'foo', function ( foo ) {
+            if ( foo ) {
+              this._foo = foo;
+            }
+            return this._foo;
+          })
+          .set( 'foo', 'bar' );
+        assert.equals( model.get( 'foo' ), 'bar' );
       }
 
     },
