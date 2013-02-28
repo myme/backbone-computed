@@ -3,37 +3,6 @@ this.Backbone.Model = (function ( Model, _ ) {
   'use strict';
 
 
-  function normalizeComputedProps( computedProps ) {
-    var propSpec, action, prop, deps;
-    var normalizedProps = {};
-
-    if ( ! computedProps ) {
-      return {};
-    }
-
-    for ( prop in computedProps ) {
-      if ( computedProps.hasOwnProperty( prop ) ) {
-        propSpec = computedProps[ prop ];
-
-        if ( propSpec instanceof Function ) {
-          action = propSpec;
-          deps = [];
-        } else {
-          action = propSpec.action;
-          deps = propSpec.depends || [];
-        }
-
-        normalizedProps[ prop ] = {
-          action: action,
-          deps: deps
-        };
-      }
-    }
-
-    return normalizedProps;
-  }
-
-
   return Model.extend({
 
     _computedProps: {},
@@ -107,7 +76,7 @@ this.Backbone.Model = (function ( Model, _ ) {
       properties = properties || {};
 
       // Setup computed properties
-      var computedProps = normalizeComputedProps( properties.properties );
+      var computedProps = this.normalizeComputedProps( properties.properties );
       delete properties.properties;
 
       // Extend our class from Boostrap.Model
@@ -118,7 +87,37 @@ this.Backbone.Model = (function ( Model, _ ) {
       });
 
       return Class;
-    })
+    }),
+
+    normalizeComputedProps: function ( computedProps ) {
+      var propSpec, action, prop, deps;
+      var normalizedProps = {};
+
+      if ( ! computedProps ) {
+        return {};
+      }
+
+      for ( prop in computedProps ) {
+        if ( computedProps.hasOwnProperty( prop ) ) {
+          propSpec = computedProps[ prop ];
+
+          if ( propSpec instanceof Function ) {
+            action = propSpec;
+            deps = [];
+          } else {
+            action = propSpec.action;
+            deps = propSpec.depends || [];
+          }
+
+          normalizedProps[ prop ] = {
+            action: action,
+            deps: deps
+          };
+        }
+      }
+
+      return normalizedProps;
+    }
 
   });
 
