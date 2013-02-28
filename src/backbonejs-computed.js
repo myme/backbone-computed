@@ -42,7 +42,8 @@
     var set = Class.prototype.set;
     Class.prototype.set = function ( attr, value ) {
       if ( computedProps[ attr ] ) {
-        return computedProps[ attr ].action.call( this, value );
+        computedProps[ attr ].action.call( this, value );
+        return this;
       }
       return set.apply( this, arguments );
     };

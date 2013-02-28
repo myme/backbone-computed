@@ -46,8 +46,8 @@
           }
         });
         var model = new Model();
-        model.set( 'foo', 100 );
-        assert.equals( model.get( 'foo' ), 100 );
+        assert.same( model.set( 'foo', 'bar' ), model );
+        assert.equals( model.get( 'foo' ), 'bar' );
       },
 
     },
