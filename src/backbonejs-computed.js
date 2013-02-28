@@ -11,24 +11,36 @@ this.Backbone.Model = (function ( Model, _ ) {
     constructor: function () {
       var classProps = this._computedProps;
       var computedProps = this._computedProps = {};
-      var prop, deps, l;
+      var prop, propSpec, l;
 
       this._cachedProps = {};
 
       for ( prop in classProps ) {
         if ( classProps.hasOwnProperty( prop ) ) {
-          this.setupDepsListeners( prop, classProps[ prop ].deps );
-          computedProps[ prop ] = classProps[ prop ];
+          propSpec = classProps[ prop ];
+          this.addProperty( prop, propSpec.deps, propSpec.action );
         }
       }
 
       return Model.apply( this, arguments );
     },
 
-    addProperty: function ( name, action ) {
-      this._computedProps[ name ] = {
-        action: action
+    addProperty: function ( name, deps, action ) {
+      if ( action === undefined ) {
+        action = deps;
+        deps = [];
+      }
+
+      var computedProps = this._computedProps;
+
+      computedProps[ name ] = {
+        action: action,
+        deps: deps
       };
+
+      this.setupDepsListeners( name, deps );
+
+      return this;
     },
 
     get: _.wrap( Model.prototype.get, function ( get, attr ) {

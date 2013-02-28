@@ -126,10 +126,27 @@
         assert.isFunction( model.addProperty );
       },
 
+      'returns self': function () {
+        var model = new Backbone.Model();
+        assert.same( model.addProperty(), model );
+      },
+
       'adds a new instance computed property': function () {
         var model = new Backbone.Model();
         model.addProperty( 'foo', function () { return 10; });
         assert.equals( model.get( 'foo' ), 10 );
+      },
+
+      'adds a new instance computed property with dependencies': function () {
+        var spy = this.spy();
+        var model = new Backbone.Model()
+          .addProperty( 'oof', [ 'foo' ], function () {
+            return this.get( 'foo' ).split( '' ).reverse().join( '' );
+          })
+          .on( 'change:oof', spy )
+          .set( 'foo', 'quux' );
+        assert.calledWith( spy, model, 'oof' );
+        assert.equals( model.get( 'oof' ), 'xuuq' );
       }
 
     }
