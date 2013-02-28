@@ -1,10 +1,10 @@
-module.exports = function (grunt) {
+module.exports = function ( grunt ) {
 
   'use strict';
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: grunt.file.readJSON( 'package.json' ),
 
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
@@ -20,7 +20,7 @@ module.exports = function (grunt) {
 
     concat: {
       dist: {
-        src: ['src/**/*.js'],
+        src: [ 'src/**/*.js' ],
         dest: 'dist/backbonejs-computed.js'
       }
     },
@@ -49,27 +49,27 @@ module.exports = function (grunt) {
     },
 
     watch: {
-      files: ['<%= jshint.files %>'],
-      tasks: ['test']
+      files: [ '<%= jshint.files %>' ],
+      tasks: [ 'test' ]
     },
 
     uglify: {
       dist: {
-        src: ['<banner:meta.banner>', 'src/**/*.js'],
+        src: [ '<banner:meta.banner>', 'src/**/*.js' ],
         dest: 'dist/backbonejs-computed.min.js'
       }
     }
 
   });
 
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-buster');
+  grunt.loadNpmTasks( 'grunt-contrib-concat' );
+  grunt.loadNpmTasks( 'grunt-contrib-jshint' );
+  grunt.loadNpmTasks( 'grunt-contrib-watch' );
+  grunt.loadNpmTasks( 'grunt-contrib-uglify' );
+  grunt.loadNpmTasks( 'grunt-buster' );
 
   // Default task.
-  grunt.registerTask('default', ['test', 'concat', 'uglify']);
-  grunt.registerTask('test', ['jshint', 'buster']);
+  grunt.registerTask( 'default', [ 'test', 'concat', 'uglify' ]);
+  grunt.registerTask( 'test', [ 'jshint', 'buster' ]);
 
 };
