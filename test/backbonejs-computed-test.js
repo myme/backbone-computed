@@ -34,37 +34,41 @@
         assert.equals( model.get( 'aPlusB' ), 30 );
       },
 
-      'setter': function () {
-        var Model = Backbone.Model.extend({
-          properties: {
-            foo: function ( foo ) {
-              if ( arguments.length ) {
-                this._foo = foo;
-              }
-              return this._foo;
-            }
-          }
-        });
-        var model = new Model();
-        assert.same( model.set( 'foo', 'bar' ), model );
-        assert.equals( model.get( 'foo' ), 'bar' );
-      },
+      'setter': {
 
-      'change event': function () {
-        var Model = Backbone.Model.extend({
-          properties: {
-            foo: function ( foo ) {
-              if ( arguments.length ) {
-                this._foo = foo;
+        setUp: function () {
+          this.Model = Backbone.Model.extend({
+            properties: {
+              foo: function ( foo ) {
+                if ( arguments.length ) {
+                  this._foo = foo;
+                }
+                return this._foo;
               }
-              return this._foo;
             }
-          }
-        });
-        var model = new Model();
-        var spy = this.spy();
-        model.on('change:foo', spy ).set( 'foo', 'bar' );
-        assert.calledOnceWith( spy, model, 'foo' );
+          });
+        },
+
+        'works': function () {
+          var model = new this.Model();
+          assert.same( model.set( 'foo', 'bar' ), model );
+          assert.equals( model.get( 'foo' ), 'bar' );
+        },
+
+        'fires change event': function () {
+          var model = new this.Model();
+          var spy = this.spy();
+          model.on( 'change:foo', spy ).set( 'foo', 'bar' );
+          assert.calledOnceWith( spy, model, 'foo' );
+        },
+
+        '// does not trigger change event if value remains the same': function () {
+          var model = new this.Model();
+          var spy = this.spy();
+          model.set( 'foo', 'bar' ).on( 'change:foo', spy ).set( 'foo', 'bar' );
+          refute.called( spy );
+        }
+
       }
 
     },
