@@ -56,11 +56,13 @@
     return function ( attr ) {
       var computedProps = this._computedProps;
       var newValue;
+
       if ( computedProps[ attr ] ) {
         newValue = computedProps[ attr ].action.call( this );
         this._cachedProps[ attr ] = newValue;
         return newValue;
       }
+
       return get.apply( this, arguments );
     };
   };
@@ -70,6 +72,7 @@
     return function ( attr, value ) {
       var computedProps = this._computedProps;
       var newValue;
+
       if ( computedProps[ attr ] ) {
         newValue = computedProps[ attr ].action.call( this, value );
         if ( this._cachedProps[ attr ] !== newValue ) {
@@ -78,6 +81,7 @@
         }
         return this;
       }
+
       return set.apply( this, arguments );
     };
   };
