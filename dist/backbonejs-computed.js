@@ -1,61 +1,61 @@
-(function ( Backbone, _ ) {
+this.Backbone.Model = (function ( Model, _ ) {
 
   'use strict';
 
-  var bbExtend = Backbone.Model.extend;
 
+  return Model.extend({
 
-  function triggerPropChange( ctx, prop ) {
-    return function () {
-      ctx.trigger( 'change:' + prop, ctx, prop );
-    };
-  }
+    _computedProps: {},
 
+    // Override Boostrap's default constructor, setting up listeners for dependencies.
+    constructor: function () {
+      var classProps = this._computedProps;
+      var computedProps = this._computedProps = {};
+      var prop, propSpec, l;
 
-  function setupDepsListeners( ctx, prop, deps ) {
-    deps = deps || [];
-    var l = deps.length;
-    while ( l-- ) {
-      ctx.on( 'change:' + deps[ l ], triggerPropChange( ctx, prop ) );
-    }
-  }
+      this._cachedProps = {};
 
-
-  function normalizeComputedProps( computedProps ) {
-    var propSpec, action, prop, deps;
-    var normalizedProps = {};
-
-    if ( ! computedProps ) {
-      return {};
-    }
-
-    for ( prop in computedProps ) {
-      if ( computedProps.hasOwnProperty( prop ) ) {
-        propSpec = computedProps[ prop ];
-
-        if ( propSpec instanceof Function ) {
-          action = propSpec;
-          deps = [];
-        } else {
-          action = propSpec.action;
-          deps = propSpec.depends || [];
+      for ( prop in classProps ) {
+        if ( classProps.hasOwnProperty( prop ) ) {
+          propSpec = classProps[ prop ];
+          this.addProperty( prop, propSpec.depends, propSpec.action );
         }
-
-        normalizedProps[ prop ] = {
-          action: action,
-          deps: deps
-        };
       }
-    }
 
-    return normalizedProps;
-  }
+      return Model.apply( this, arguments );
+    },
 
+    /*
+       .addProperty( name, [depends ,] action )
 
-  // Creates a getter for the class, taking as input
-  // the original getter to wrap
-  var genGetter = function ( get ) {
-    return function ( attr ) {
+         name:    The name of the computed property.
+         depends: List of properties the new property should
+                  depend on.
+         action:  A function for getting and setting the
+                  computed property.
+
+       Adds a new computed property to the model instance.
+     */
+
+    addProperty: function ( name, depends, action ) {
+      if ( action === undefined ) {
+        action = depends;
+        depends = [];
+      }
+
+      var computedProps = this._computedProps;
+
+      computedProps[ name ] = {
+        action: action,
+        depends: depends
+      };
+
+      this.setupDepsListeners( name, depends );
+
+      return this;
+    },
+
+    get: _.wrap( Model.prototype.get, function ( get, attr ) {
       var computedProps = this._computedProps;
       var newValue;
 
@@ -65,20 +65,15 @@
         return newValue;
       }
 
-      return get.apply( this, arguments );
-    };
-  };
+      return get.call( this, attr );
+    }),
 
-
-  // Creates a setter for the class, taking as input
-  // the original setter to wrap
-  var genSetter = function ( set ) {
-    return function ( attr, value ) {
+    set: _.wrap( Model.prototype.set, function ( set, attr, values ) {
       var computedProps = this._computedProps;
       var newValue;
 
       if ( computedProps[ attr ] ) {
-        newValue = computedProps[ attr ].action.call( this, value );
+        newValue = computedProps[ attr ].action.call( this, values );
         if ( this._cachedProps[ attr ] !== newValue ) {
           this._cachedProps[ attr ] = newValue;
           this.trigger( 'change:' + attr, this, attr );
@@ -86,49 +81,89 @@
         return this;
       }
 
-      return set.apply( this, arguments );
-    };
-  };
+      return set.call( this, attr, values );
+    }),
 
+    setupDepsListeners: function setupDepsListeners( prop, depends ) {
+      depends = depends || [];
 
-  // Override Bootstrap.Model's extend
-  Backbone.Model.extend = function ( properties, classProperties ) {
-    var prop, action, propSpec, deps;
-    var parent = this;
+      var context = this;
+      var triggerPropChange = function () {
+        context.trigger( 'change:' + prop, context, prop );
+      };
 
-    properties = properties || {};
+      var l = depends.length;
+      while ( l-- ) {
+        this.on( 'change:' + depends[ l ], triggerPropChange );
+      }
+    }
 
-    // Setup computed properties
-    var computedProps = normalizeComputedProps( properties.properties );
-    delete properties.properties;
+  }, {
 
-    // Override Boostrap's default constructor, setting up listeners for dependencies.
-    properties.constructor = function () {
-      var computedProps = this._computedProps;
-      var prop, deps, l;
-      this._cachedProps = {};
+    addProperty: function ( name, depends, action ) {
+      if ( action === undefined ) {
+        action = depends;
+        depends = [];
+      }
+
+      this.prototype._computedProps[ name ] = {
+        action: action,
+        depends: depends
+      };
+
+      return this;
+    },
+
+    // Override Bootstrap.Model's extend
+    extend: _.wrap( Model.extend, function ( extend, properties, classProperties ) {
+      var prop, action, propSpec, depends;
+
+      properties = properties || {};
+
+      // Setup computed properties
+      var computedProps = this.normalizeComputedProps( properties.properties );
+      delete properties.properties;
+
+      // Extend our class from Boostrap.Model
+      var Class = extend.call( this, properties, classProperties );
+
+      _.extend( Class.prototype, {
+        _computedProps: computedProps
+      });
+
+      return Class;
+    }),
+
+    normalizeComputedProps: function ( computedProps ) {
+      var propSpec, action, prop, depends;
+      var normalizedProps = {};
+
+      if ( ! computedProps ) {
+        return {};
+      }
 
       for ( prop in computedProps ) {
         if ( computedProps.hasOwnProperty( prop ) ) {
-          setupDepsListeners( this, prop, computedProps[ prop ].deps );
+          propSpec = computedProps[ prop ];
+
+          if ( propSpec instanceof Function ) {
+            action = propSpec;
+            depends = [];
+          } else {
+            action = propSpec.action;
+            depends = propSpec.depends || [];
+          }
+
+          normalizedProps[ prop ] = {
+            action: action,
+            depends: depends
+          };
         }
       }
 
-      return parent.apply( this, arguments );
-    };
+      return normalizedProps;
+    }
 
-    // Extend our class from Boostrap.Model
-    var Class = bbExtend.call( this, properties, classProperties );
+  });
 
-    Class.prototype._computedProps = computedProps;
-
-    // Override Bootstrap's default getter
-    Class.prototype.get = genGetter( Class.prototype.get );
-
-    // Override Bootstrap's default setter
-    Class.prototype.set = genSetter( Class.prototype.set );
-
-    return Class;
-  };
-
-}( this.Backbone, this._ ));
+}( this.Backbone.Model, this._ ));
