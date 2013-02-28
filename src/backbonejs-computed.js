@@ -87,17 +87,16 @@ this.Backbone.Model = (function ( Model, _ ) {
 
     setupDepsListeners: function setupDepsListeners( prop, deps ) {
       deps = deps || [];
-      var l = deps.length;
-      while ( l-- ) {
-        this.on( 'change:' + deps[ l ], this.triggerPropChange( prop ) );
-      }
-    },
 
-    triggerPropChange: function ( prop ) {
       var context = this;
-      return function () {
+      var triggerPropChange = function () {
         context.trigger( 'change:' + prop, context, prop );
       };
+
+      var l = deps.length;
+      while ( l-- ) {
+        this.on( 'change:' + deps[ l ], triggerPropChange );
+      }
     }
 
   }, {
