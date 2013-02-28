@@ -1,0 +1,8 @@
+{
+  "name": "backbonejs-computed",
+  "version": "0.0.0",
+  "devDependencies": {
+    "backbone": "~0.9.10",
+    "underscore": "~1.4.4"
+  }
+}

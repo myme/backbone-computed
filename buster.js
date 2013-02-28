@@ -4,8 +4,8 @@ config["Browser tests"] = {
   env: "browser",
   rootPath: "./",
   libs: [
-    "lib/underscore-min.js",
-    "lib/backbone-min.js",
+    "components/underscore/underscore-min.js",
+    "components/backbone/backbone-min.js"
   ],
   sources: [
     "src/*.js"
