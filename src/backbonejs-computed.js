@@ -25,6 +25,19 @@ this.Backbone.Model = (function ( Model, _ ) {
       return Model.apply( this, arguments );
     },
 
+
+    /*
+       .addProperty( name, [deps ,] action )
+
+         name:   The name of the computed property.
+         deps:   List of properties the new property should
+                 depend on.
+         action: A function for getting and setting the
+                 computed property.
+
+       Adds a new computed property to the model instance.
+     */
+
     addProperty: function ( name, deps, action ) {
       if ( action === undefined ) {
         action = deps;
