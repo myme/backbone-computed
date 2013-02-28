@@ -14,6 +14,7 @@
 
     // Override Boostrap's default constructor
     properties.constructor = function () {
+      this._cachedProps = {};
       return parent.apply( this, arguments );
     };
 
@@ -43,8 +44,11 @@
     // Override Bootstrap's default getter
     var get = Class.prototype.get;
     Class.prototype.get = function ( attr ) {
+      var newValue;
       if ( computedProps[ attr ] ) {
-        return computedProps[ attr ].action.call( this );
+        newValue = computedProps[ attr ].action.call( this );
+        this._cachedProps[ attr ] = newValue;
+        return newValue;
       }
       return get.apply( this, arguments );
     };
@@ -52,9 +56,13 @@
     // Override Bootstrap's default setter
     var set = Class.prototype.set;
     Class.prototype.set = function ( attr, value ) {
+      var newValue;
       if ( computedProps[ attr ] ) {
-        computedProps[ attr ].action.call( this, value );
-        this.trigger( 'change:' + attr, this, attr );
+        newValue = computedProps[ attr ].action.call( this, value );
+        if ( this._cachedProps[ attr ] !== newValue ) {
+          this._cachedProps[ attr ] = newValue;
+          this.trigger( 'change:' + attr, this, attr );
+        }
         return this;
       }
       return set.apply( this, arguments );

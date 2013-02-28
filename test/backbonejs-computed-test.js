@@ -62,7 +62,7 @@
           assert.calledOnceWith( spy, model, 'foo' );
         },
 
-        '// does not trigger change event if value remains the same': function () {
+        'does not trigger change event if value remains the same': function () {
           var model = new this.Model();
           var spy = this.spy();
           model.set( 'foo', 'bar' ).on( 'change:foo', spy ).set( 'foo', 'bar' );
