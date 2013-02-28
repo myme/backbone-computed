@@ -3,22 +3,6 @@ this.Backbone.Model = (function ( Model, _ ) {
   'use strict';
 
 
-  function triggerPropChange( ctx, prop ) {
-    return function () {
-      ctx.trigger( 'change:' + prop, ctx, prop );
-    };
-  }
-
-
-  function setupDepsListeners( ctx, prop, deps ) {
-    deps = deps || [];
-    var l = deps.length;
-    while ( l-- ) {
-      ctx.on( 'change:' + deps[ l ], triggerPropChange( ctx, prop ) );
-    }
-  }
-
-
   function normalizeComputedProps( computedProps ) {
     var propSpec, action, prop, deps;
     var normalizedProps = {};
@@ -63,7 +47,7 @@ this.Backbone.Model = (function ( Model, _ ) {
 
       for ( prop in computedProps ) {
         if ( computedProps.hasOwnProperty( prop ) ) {
-          setupDepsListeners( this, prop, computedProps[ prop ].deps );
+          this.setupDepsListeners( prop, computedProps[ prop ].deps );
         }
       }
 
@@ -97,7 +81,22 @@ this.Backbone.Model = (function ( Model, _ ) {
       }
 
       return set.call( this, attr, values );
-    })
+    }),
+
+    setupDepsListeners: function setupDepsListeners( prop, deps ) {
+      deps = deps || [];
+      var l = deps.length;
+      while ( l-- ) {
+        this.on( 'change:' + deps[ l ], this.triggerPropChange( prop ) );
+      }
+    },
+
+    triggerPropChange: function ( prop ) {
+      var context = this;
+      return function () {
+        context.trigger( 'change:' + prop, context, prop );
+      };
+    }
 
   }, {
 
