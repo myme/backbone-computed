@@ -4,6 +4,23 @@
 
   var bbExtend = Backbone.Model.extend;
 
+
+  function triggerPropChange( ctx, prop ) {
+    return function () {
+      ctx.trigger( 'change:' + prop, ctx, prop );
+    };
+  }
+
+
+  function setupDepsListeners( ctx, prop, deps ) {
+    deps = deps || [];
+    var l = deps.length;
+    while ( l-- ) {
+      ctx.on( 'change:' + deps[ l ], triggerPropChange( ctx, prop ) );
+    }
+  }
+
+
   Backbone.Model.extend = function ( properties, classProperties ) {
     var prop, action, propSpec, deps;
     var parent = this;
@@ -11,15 +28,6 @@
     properties = properties || {};
     var computedProps = properties.properties;
     delete properties.properties;
-
-    // Override Boostrap's default constructor
-    properties.constructor = function () {
-      this._cachedProps = {};
-      return parent.apply( this, arguments );
-    };
-
-    // Extend our class from Boostrap.Model
-    var Class = bbExtend.call( this, properties, classProperties );
 
     // Setup computed properties
     if ( computedProps ) {
@@ -31,7 +39,7 @@
             deps = [];
           } else {
             action = propSpec.action;
-            deps = propSpec.deps || [];
+            deps = propSpec.depends || [];
           }
           computedProps[ prop ] = {
             action: action,
@@ -40,6 +48,23 @@
         }
       }
     }
+
+    // Override Boostrap's default constructor, setting up listeners for dependencies.
+    properties.constructor = function () {
+      var prop, deps, l;
+      this._cachedProps = {};
+
+      for ( prop in computedProps ) {
+        if ( computedProps.hasOwnProperty( prop ) ) {
+          setupDepsListeners( this, prop, computedProps[ prop ].deps );
+        }
+      }
+
+      return parent.apply( this, arguments );
+    };
+
+    // Extend our class from Boostrap.Model
+    var Class = bbExtend.call( this, properties, classProperties );
 
     // Override Bootstrap's default getter
     var get = Class.prototype.get;

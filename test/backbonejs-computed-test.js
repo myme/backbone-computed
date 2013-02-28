@@ -109,6 +109,12 @@
         this.model.set( 'fullName', 'Baz Quux' );
         assert.equals( this.model.get( 'firstName' ), 'Baz' );
         assert.equals( this.model.get( 'lastName' ), 'Quux' );
+      },
+
+      'change': function () {
+        var spy = this.spy();
+        this.model.on( 'change:fullName', spy ).set( 'firstName', 'Blargh' );
+        assert.calledOnceWith( spy, this.model, 'fullName' );
       }
 
     }
