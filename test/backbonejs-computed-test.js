@@ -160,11 +160,6 @@
 
     '.addProperty (class method)': {
 
-      'is a function': function () {
-        var Model = Backbone.Model.extend();
-        assert.isFunction( Model.addProperty );
-      },
-
       'returns class': function () {
         var Model = Backbone.Model.extend();
         assert.same( Model.addProperty(), Model );
