@@ -1,6 +1,11 @@
 {
   "name": "backbone-computed",
   "version": "0.0.0",
+  "description": "Computed properties for Backbone",
+  "author": {
+    "name": "Martin Øinæs Myrseth",
+    "email": "myrseth@gmail.com"
+  },
   "dependencies": {
     "backbone": "~1.0.0",
     "underscore": "~1.4.4",
