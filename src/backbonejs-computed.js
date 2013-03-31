@@ -36,6 +36,10 @@ this.Backbone.Model = (function ( Model, _ ) {
 
   return Model.extend({
 
+    /*
+     * Instance methods
+     */
+
     _computedProps: {},
 
     // Override Boostrap's default constructor, setting up listeners for dependencies.
@@ -130,6 +134,10 @@ this.Backbone.Model = (function ( Model, _ ) {
     }
 
   }, {
+
+    /*
+     * Static / class methods
+     */
 
     addProperty: function ( name, depends, action ) {
       if ( action === undefined ) {
