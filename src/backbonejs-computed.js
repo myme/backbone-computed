@@ -3,6 +3,37 @@ this.Backbone.Model = (function ( Model, _ ) {
   'use strict';
 
 
+  function normalizeComputedProps( computedProps ) {
+    var propSpec, action, prop, depends;
+    var normalizedProps = {};
+
+    if ( ! computedProps ) {
+      return {};
+    }
+
+    for ( prop in computedProps ) {
+      if ( computedProps.hasOwnProperty( prop ) ) {
+        propSpec = computedProps[ prop ];
+
+        if ( propSpec instanceof Function ) {
+          action = propSpec;
+          depends = [];
+        } else {
+          action = propSpec.action;
+          depends = propSpec.depends || [];
+        }
+
+        normalizedProps[ prop ] = {
+          action: action,
+          depends: depends
+        };
+      }
+    }
+
+    return normalizedProps;
+  }
+
+
   return Model.extend({
 
     _computedProps: {},
@@ -121,7 +152,7 @@ this.Backbone.Model = (function ( Model, _ ) {
       properties = properties || {};
 
       // Setup computed properties
-      var computedProps = this.normalizeComputedProps( properties.properties );
+      var computedProps = normalizeComputedProps( properties.properties );
       delete properties.properties;
 
       // Extend our class from Boostrap.Model
@@ -132,37 +163,7 @@ this.Backbone.Model = (function ( Model, _ ) {
       });
 
       return Class;
-    }),
-
-    normalizeComputedProps: function ( computedProps ) {
-      var propSpec, action, prop, depends;
-      var normalizedProps = {};
-
-      if ( ! computedProps ) {
-        return {};
-      }
-
-      for ( prop in computedProps ) {
-        if ( computedProps.hasOwnProperty( prop ) ) {
-          propSpec = computedProps[ prop ];
-
-          if ( propSpec instanceof Function ) {
-            action = propSpec;
-            depends = [];
-          } else {
-            action = propSpec.action;
-            depends = propSpec.depends || [];
-          }
-
-          normalizedProps[ prop ] = {
-            action: action,
-            depends: depends
-          };
-        }
-      }
-
-      return normalizedProps;
-    }
+    })
 
   });
 
