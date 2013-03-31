@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Backbone Computed Examples</title>
+</head>
+
+<body>
+  <pre><code>
+    (function () {
+      'use strict';
+
+      var Model = Backbone.Model.extend({
+        properties: {
+          time: function () {
+            return new Date();
+          }
+        }
+      });
+
+      var model = new Model();
+      console.log( model.get( 'time' ) );
+
+    }());
+  </code></pre>
+
+  <script src="/components/underscore/underscore.js"></script>
+  <script src="/components/backbone/backbone.js"></script>
+  <script src="/dist/backbone-computed.js"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var Model = Backbone.Model.extend({
+        properties: {
+          time: function () {
+            return new Date();
+          }
+        }
+      });
+
+      var model = new Model();
+      console.log( model.get( 'time' ) );
+
+    }());
+  </script>
+</body>
+</html>
