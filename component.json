@@ -6,6 +6,11 @@
     "name": "Martin Øinæs Myrseth",
     "email": "myrseth@gmail.com"
   },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
   "dependencies": {
     "backbone": "~1.0.0",
     "underscore": "~1.4.4",
