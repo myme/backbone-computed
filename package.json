@@ -22,7 +22,7 @@
   "scripts": {
     "prepublish": "bower install",
     "build": "grunt",
-    "test": "grunt test",
-    "watch": "grunt --force test watch"
+    "start": "grunt --force test watch",
+    "test": "grunt test"
   }
 }
