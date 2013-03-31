@@ -17,6 +17,7 @@ var model = new Model();
 console.log( model.get( 'time' ) );
 ```
 
-Insall and run tests:
+Development
+-----------
 
- npm install && bower install && npm test
+TL;DR `npm install && npm test` or alternatively `npm start` for a `lint > test > watch` cycle.
