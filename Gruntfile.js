@@ -25,6 +25,10 @@ module.exports = function ( grunt ) {
       }
     },
 
+    connect: {
+      server: {}
+    },
+
     jshint: {
       files: [
         'buster.js',
@@ -63,6 +67,7 @@ module.exports = function ( grunt ) {
   });
 
   grunt.loadNpmTasks( 'grunt-contrib-concat' );
+  grunt.loadNpmTasks( 'grunt-contrib-connect' );
   grunt.loadNpmTasks( 'grunt-contrib-jshint' );
   grunt.loadNpmTasks( 'grunt-contrib-watch' );
   grunt.loadNpmTasks( 'grunt-contrib-uglify' );
@@ -70,6 +75,7 @@ module.exports = function ( grunt ) {
 
   // Default task.
   grunt.registerTask( 'default', [ 'test', 'concat', 'uglify' ]);
+  grunt.registerTask( 'start', [ 'connect', 'test', 'watch' ]);
   grunt.registerTask( 'test', [ 'jshint', 'buster' ]);
 
 };
