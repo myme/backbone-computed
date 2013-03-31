@@ -21,7 +21,7 @@ module.exports = function ( grunt ) {
     concat: {
       dist: {
         src: [ 'src/**/*.js' ],
-        dest: 'dist/backbonejs-computed.js'
+        dest: 'dist/backbone-computed.js'
       }
     },
 
@@ -56,7 +56,7 @@ module.exports = function ( grunt ) {
     uglify: {
       dist: {
         src: [ '<banner:meta.banner>', 'src/**/*.js' ],
-        dest: 'dist/backbonejs-computed.min.js'
+        dest: 'dist/backbone-computed.min.js'
       }
     }
 
