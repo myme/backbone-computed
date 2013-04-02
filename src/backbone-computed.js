@@ -103,20 +103,32 @@ this.Backbone.Model = (function ( Model, _ ) {
       return get.call( this, attr );
     }),
 
-    set: _.wrap( Model.prototype.set, function ( set, attr, values ) {
+    set: _.wrap( Model.prototype.set, function ( set, attributes, value ) {
       var computedProps = this._computedProps;
-      var newValue;
+      var key, newValue;
 
-      if ( computedProps[ attr ] ) {
-        newValue = computedProps[ attr ].action.call( this, values );
-        if ( this._cachedProps[ attr ] !== newValue ) {
-          this._cachedProps[ attr ] = newValue;
-          this.trigger( 'change:' + attr, this, attr );
-        }
-        return this;
+      if ( typeof attributes === 'string' ) {
+        key = attributes;
+        attributes = {};
+        attributes[ key ] = value;
       }
 
-      return set.call( this, attr, values );
+      _.each( attributes, function ( value, attr ) {
+        if ( computedProps[ attr ] ) {
+          newValue = computedProps[ attr ].action.call( this, value );
+
+          if ( this._cachedProps[ attr ] !== newValue ) {
+            this._cachedProps[ attr ] = newValue;
+            this.trigger( 'change:' + attr, this, attr );
+          }
+
+          return;
+        }
+
+        set.call( this, attr, value );
+      }, this );
+
+      return this;
     }),
 
     setupDepsListeners: function setupDepsListeners( prop, depends ) {

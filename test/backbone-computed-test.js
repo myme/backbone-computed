@@ -55,6 +55,12 @@
           assert.equals( model.get( 'foo' ), 'bar' );
         },
 
+        'handles object notation': function () {
+          var model = new this.Model();
+          model.set({ foo: 'bar' });
+          assert.equals( model.get( 'foo' ), 'bar' );
+        },
+
         'fires change event': function () {
           var model = new this.Model();
           var spy = this.spy();
@@ -111,9 +117,18 @@
         assert.equals( this.model.get( 'lastName' ), 'Quux' );
       },
 
-      'change': function () {
+      'change triggers change event': function () {
         var spy = this.spy();
         this.model.on( 'change:fullName', spy ).set( 'firstName', 'Blargh' );
+        assert.calledOnceWith( spy, this.model, 'fullName' );
+      },
+
+      '// triggers only event once': function () {
+        var spy = this.spy();
+        this.model.on( 'change:fullName', spy ).set({
+          firstName: 'Foo',
+          lastName: 'Bar'
+        });
         assert.calledOnceWith( spy, this.model, 'fullName' );
       }
 
