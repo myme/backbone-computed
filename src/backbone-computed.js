@@ -124,6 +124,7 @@ this.Backbone.Model = (function ( Model, _ ) {
         options = value;
       }
 
+      // Group computed and regular properties
       attributes = _.chain( attributes )
         .keys()
         .reduce( function ( attrs, key ) {
@@ -136,6 +137,7 @@ this.Backbone.Model = (function ( Model, _ ) {
       var changedAttrs = this.changedAttributes( attributes.regular ) || {};
       set.call( this, changedAttrs, options );
 
+      // Get all computed properties which have one or more changed dependencies
       var changedComputed = _.chain( changedAttrs )
         .keys()
         .map( function ( attr ) {
@@ -146,10 +148,12 @@ this.Backbone.Model = (function ( Model, _ ) {
         }, [])
         .value();
 
+      // Delete the cache of all changed properties
       _.each( changedComputed, function ( attr ) {
         delete computedCache[ attr ];
       });
 
+      // Call setters of all computed properties
       _.each( attributes.computed, function ( value, attr ) {
         var cached = computedCache[ attr ];
         if ( ! cached || cached !== value ) {
@@ -159,6 +163,7 @@ this.Backbone.Model = (function ( Model, _ ) {
         }
       }, this);
 
+      // Populate the caches of all computed properties
       _.each( changedComputed, function ( attr ) {
         if ( ! computedCache[ attr ] ) {
           computedCache[ attr ] = computedProps[ attr ].call( this );
