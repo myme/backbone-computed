@@ -92,10 +92,13 @@ this.Backbone.Model = (function ( Model, _ ) {
 
     get: _.wrap( Model.prototype.get, function ( get, attr ) {
       var computedProps = this._computedProps;
-      var newValue;
 
       if ( computedProps[ attr ] ) {
-        newValue = computedProps[ attr ].action.call( this );
+        var cached = this._cachedProps[ attr ];
+        if ( cached !== undefined ) {
+          return cached;
+        }
+        var newValue = computedProps[ attr ].action.call( this );
         this._cachedProps[ attr ] = newValue;
         return newValue;
       }

@@ -29,6 +29,19 @@
             });
 
           assert.equals( model.get( 'aPlusB' ), 30 );
+        },
+
+        'caches computed property value': function () {
+          var spy = this.spy( function () {
+            return this.get( 'a' ) + this.get( 'b' );
+          });
+
+          var model = new Backbone.Model({ a: 10, b: 20 })
+            .addProperty( 'aPlusB', spy );
+
+          assert.equals( model.get( 'aPlusB' ), 30 );
+          assert.equals( model.get( 'aPlusB' ), 30 );
+          assert.calledOnce( spy );
         }
 
       },
