@@ -49,41 +49,37 @@
       'setter': {
 
         setUp: function () {
-          this.Model = Backbone.Model.extend({
-            properties: {
-              foo: function ( foo ) {
-                if ( arguments.length ) {
-                  this._foo = foo;
-                }
-                return this._foo;
+          this.model = new Backbone.Model()
+            .addProperty( 'foo', function ( foo ) {
+              if ( arguments.length ) {
+                this._foo = foo;
               }
-            }
-          });
+              return this._foo;
+            });
         },
 
         'works': function () {
-          var model = new this.Model();
-          assert.same( model.set( 'foo', 'bar' ), model );
-          assert.equals( model.get( 'foo' ), 'bar' );
+          assert.same( this.model.set( 'foo', 'bar' ), this.model );
+          assert.equals( this.model.get( 'foo' ), 'bar' );
         },
 
         'handles object notation': function () {
-          var model = new this.Model();
-          model.set({ foo: 'bar' });
-          assert.equals( model.get( 'foo' ), 'bar' );
+          this.model.set({ foo: 'bar' });
+          assert.equals( this.model.get( 'foo' ), 'bar' );
         },
 
         'fires change event': function () {
-          var model = new this.Model();
           var spy = this.spy();
-          model.on( 'change:foo', spy ).set( 'foo', 'bar' );
-          assert.calledOnceWith( spy, model, 'foo' );
+          this.model.on( 'change:foo', spy ).set( 'foo', 'bar' );
+          assert.calledOnceWith( spy, this.model, 'foo' );
         },
 
         'does not trigger change event if value remains the same': function () {
-          var model = new this.Model();
           var spy = this.spy();
-          model.set( 'foo', 'bar' ).on( 'change:foo', spy ).set( 'foo', 'bar' );
+          this.model
+            .set( 'foo', 'bar' )
+            .on( 'change:foo', spy )
+            .set( 'foo', 'bar' );
           refute.called( spy );
         }
 
