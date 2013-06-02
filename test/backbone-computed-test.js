@@ -149,6 +149,24 @@
           lastName: 'Bar'
         });
         assert.calledOnceWith( spy, this.model, 'fullName' );
+      },
+
+      '// does not trigger "change" event until done': function () {
+        var aSpy = this.spy();
+        var aPlusBSpy = this.spy();
+        var changeSpy = this.spy();
+
+        new Backbone.Model({ a: 10, b: 20 })
+          .addProperty( 'aPlusB', function () {
+            return this.get( 'a' ) + this.get( 'b' );
+          })
+          .on( 'change', changeSpy )
+          .on( 'change:a', aSpy )
+          .on( 'change:aPlusB', aPlusBSpy )
+          .set( 'a', 20 );
+
+        assert( aSpy.calledBefore( aPlusBSpy ), 'a listener called before aPlusB' );
+        assert( aPlusBSpy.calledBefore( changeSpy ), 'aPlusB listener called before change listener' );
       }
 
     },
