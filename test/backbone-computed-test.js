@@ -20,18 +20,17 @@
 
     'simple computed props': {
 
-      'getter': function () {
-        var Model = Backbone.Model.extend({
-          properties: {
-            aPlusB: function () {
-              var a = this.get( 'a' );
-              var b = this.get( 'b' );
-              return a + b;
-            }
-          }
-        });
-        var model = new Model({ a: 10, b: 20 });
-        assert.equals( model.get( 'aPlusB' ), 30 );
+      'getter': {
+
+        'returns computed property': function () {
+          var model = new Backbone.Model({ a: 10, b: 20 })
+            .addProperty( 'aPlusB', function () {
+              return this.get( 'a' ) + this.get( 'b' );
+            });
+
+          assert.equals( model.get( 'aPlusB' ), 30 );
+        }
+
       },
 
       'setter': {
