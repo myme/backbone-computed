@@ -81,6 +81,17 @@
             .on( 'change:foo', spy )
             .set( 'foo', 'bar' );
           refute.called( spy );
+        },
+
+        'invalidates computed property cache': function () {
+          var spy = this.spy( function () {
+            return this.get( 'a' ) + this.get( 'b' );
+          });
+          var model = new Backbone.Model({ a: 10, b: 20 })
+            .addProperty( 'bar', [ 'a', 'b' ], spy );
+          assert.equals( model.get( 'bar' ), 30 );
+          model.set( 'a', 20 );
+          assert.equals( model.get( 'bar' ), 40 );
         }
 
       }

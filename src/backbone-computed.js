@@ -45,10 +45,11 @@ this.Backbone.Model = (function ( Model, _ ) {
     // Override Boostrap's default constructor, setting up listeners for dependencies.
     constructor: function () {
       var classProps = this._computedProps;
-      var computedProps = this._computedProps = {};
       var prop, propSpec, l;
 
-      this._cachedProps = {};
+      this._computedCache = {};
+      this._computedProps = {};
+      this._dependencyMap = {};
 
       for ( prop in classProps ) {
         if ( classProps.hasOwnProperty( prop ) ) {
@@ -79,27 +80,30 @@ this.Backbone.Model = (function ( Model, _ ) {
       }
 
       var computedProps = this._computedProps;
+      var dependencyMap = this._dependencyMap;
 
-      computedProps[ name ] = {
-        action: action,
-        depends: depends
-      };
+      computedProps[ name ] = action;
 
-      this.setupDepsListeners( name, depends );
+      _.map( depends, function ( dep ) {
+        var dependents = dependencyMap[ dep ] || ( dependencyMap[ dep ] = [] );
+        dependents.push( name );
+      });
 
       return this;
     },
 
     get: _.wrap( Model.prototype.get, function ( get, attr ) {
       var computedProps = this._computedProps;
+      var computedCache = this._computedCache;
+      var action;
 
-      if ( computedProps[ attr ] ) {
-        var cached = this._cachedProps[ attr ];
+      if ( action = computedProps[ attr ] ) {
+        var cached = computedCache[ attr ];
         if ( cached !== undefined ) {
           return cached;
         }
-        var newValue = computedProps[ attr ].action.call( this );
-        this._cachedProps[ attr ] = newValue;
+        var newValue = action.call( this );
+        computedCache[ attr ] = newValue;
         return newValue;
       }
 
@@ -108,6 +112,8 @@ this.Backbone.Model = (function ( Model, _ ) {
 
     set: _.wrap( Model.prototype.set, function ( set, attributes, value ) {
       var computedProps = this._computedProps;
+      var computedCache = this._computedCache;
+      var dependencyMap = this._dependencyMap;
       var key, newValue;
 
       if ( typeof attributes === 'string' ) {
@@ -116,37 +122,47 @@ this.Backbone.Model = (function ( Model, _ ) {
         attributes[ key ] = value;
       }
 
-      _.each( attributes, function ( value, attr ) {
-        if ( computedProps[ attr ] ) {
-          newValue = computedProps[ attr ].action.call( this, value );
+      attributes = _.chain( attributes )
+        .keys()
+        .reduce( function ( attrs, key ) {
+          var group = attrs[ computedProps[ key ] ? 'computed' : 'regular' ];
+          group[ key ] = attributes[ key ];
+          return attrs;
+        }, { computed: {}, regular: {} })
+        .value();
 
-          if ( this._cachedProps[ attr ] !== newValue ) {
-            this._cachedProps[ attr ] = newValue;
-            this.trigger( 'change:' + attr, this, attr );
-          }
+      var changedAttrs = this.changedAttributes( attributes.regular ) || {};
+      set.call( this, changedAttrs );
 
-          return;
+      var changedComputed = _.chain( changedAttrs )
+        .keys()
+        .map( function ( attr ) {
+          return dependencyMap[ attr ];
+        })
+        .reduce( function ( dependents, newDependents ) {
+          return _.union( dependents, newDependents || [] );
+        }, [])
+        .value();
+
+      _.each( changedComputed, function ( attr ) {
+        delete computedCache[ attr ];
+      });
+
+      _.each( attributes.computed, function ( value, attr ) {
+        var cached = computedCache[ attr ];
+        if ( !cached || cached !== value ) {
+          computedCache[ attr ] =
+            computedProps[ attr ].call( this, value );
+          changedComputed = _.union( changedComputed, [ attr ]);
         }
+      }, this);
 
-        set.call( this, attr, value );
-      }, this );
+      _.each( changedComputed, function ( attr ) {
+        this.trigger( 'change:' + attr, this, attr );
+      }, this);
 
       return this;
-    }),
-
-    setupDepsListeners: function setupDepsListeners( prop, depends ) {
-      depends = depends || [];
-
-      var context = this;
-      var triggerPropChange = function () {
-        context.trigger( 'change:' + prop, context, prop );
-      };
-
-      var l = depends.length;
-      while ( l-- ) {
-        this.on( 'change:' + depends[ l ], triggerPropChange );
-      }
-    }
+    })
 
   }, {
 
