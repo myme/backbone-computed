@@ -110,7 +110,7 @@ this.Backbone.Model = (function ( Model, _ ) {
       return get.call( this, attr );
     }),
 
-    set: _.wrap( Model.prototype.set, function ( set, attributes, value ) {
+    set: _.wrap( Model.prototype.set, function ( set, attributes, value, options ) {
       var computedProps = this._computedProps;
       var computedCache = this._computedCache;
       var dependencyMap = this._dependencyMap;
@@ -120,6 +120,8 @@ this.Backbone.Model = (function ( Model, _ ) {
         key = attributes;
         attributes = {};
         attributes[ key ] = value;
+      } else {
+        options = value;
       }
 
       attributes = _.chain( attributes )
@@ -132,7 +134,7 @@ this.Backbone.Model = (function ( Model, _ ) {
         .value();
 
       var changedAttrs = this.changedAttributes( attributes.regular ) || {};
-      set.call( this, changedAttrs );
+      set.call( this, changedAttrs, options );
 
       var changedComputed = _.chain( changedAttrs )
         .keys()
