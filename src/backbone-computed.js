@@ -152,7 +152,7 @@ this.Backbone.Model = (function ( Model, _ ) {
 
       _.each( attributes.computed, function ( value, attr ) {
         var cached = computedCache[ attr ];
-        if ( !cached || cached !== value ) {
+        if ( ! cached || cached !== value ) {
           computedCache[ attr ] =
             computedProps[ attr ].call( this, value );
           changedComputed = _.union( changedComputed, [ attr ]);
@@ -160,7 +160,10 @@ this.Backbone.Model = (function ( Model, _ ) {
       }, this);
 
       _.each( changedComputed, function ( attr ) {
-        this.trigger( 'change:' + attr, this, attr );
+        if ( ! computedCache[ attr ] ) {
+          computedCache[ attr ] = computedProps[ attr ].call( this );
+        }
+        this.trigger( 'change:' + attr, this, computedCache[ attr ]);
       }, this);
 
       return this;

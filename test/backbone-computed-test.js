@@ -71,7 +71,7 @@
         'fires change event': function () {
           var spy = this.spy();
           this.model.on( 'change:foo', spy ).set( 'foo', 'bar' );
-          assert.calledOnceWith( spy, this.model, 'foo' );
+          assert.calledOnceWith( spy, this.model, 'bar' );
         },
 
         'does not trigger change event if value remains the same': function () {
@@ -139,7 +139,7 @@
       'change triggers change event': function () {
         var spy = this.spy();
         this.model.on( 'change:fullName', spy ).set( 'firstName', 'Blargh' );
-        assert.calledOnceWith( spy, this.model, 'fullName' );
+        assert.calledOnceWith( spy, this.model, 'Blargh Bar' );
       },
 
       '// triggers only event once': function () {
@@ -192,7 +192,7 @@
           })
           .on( 'change:oof', spy )
           .set( 'foo', 'quux' );
-        assert.calledWith( spy, model, 'oof' );
+        assert.calledWith( spy, model, 'xuuq' );
         assert.equals( model.get( 'oof' ), 'xuuq' );
       },
 
