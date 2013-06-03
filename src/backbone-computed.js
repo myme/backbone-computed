@@ -95,9 +95,9 @@ this.Backbone.Model = (function ( Model, _ ) {
     get: _.wrap( Model.prototype.get, function ( get, attr ) {
       var computedProps = this._computedProps;
       var computedCache = this._computedCache;
-      var action;
+      var action = computedProps[ attr ];
 
-      if ( action = computedProps[ attr ] ) {
+      if ( action ) {
         var cached = computedCache[ attr ];
         if ( cached !== undefined ) {
           return cached;
