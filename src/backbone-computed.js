@@ -149,16 +149,13 @@ this.Backbone.Model = (function ( Model, _ ) {
         .value();
 
       // Delete the cache of all changed properties
-      _.each( changedComputed, function ( attr ) {
-        delete computedCache[ attr ];
-      });
+      _.each( changedComputed, this.invalidateCacheProp, this );
 
       // Call setters of all computed properties
       _.each( attributes.computed, function ( value, attr ) {
         var cached = computedCache[ attr ];
         if ( ! cached || cached !== value ) {
-          computedCache[ attr ] =
-            computedProps[ attr ].call( this, value );
+          this.runComputed( attr, value );
           changedComputed = _.union( changedComputed, [ attr ]);
         }
       }, this);
@@ -166,13 +163,24 @@ this.Backbone.Model = (function ( Model, _ ) {
       // Populate the caches of all computed properties
       _.each( changedComputed, function ( attr ) {
         if ( ! computedCache[ attr ] ) {
-          computedCache[ attr ] = computedProps[ attr ].call( this );
+          this.runComputed( attr );
         }
         this.trigger( 'change:' + attr, this, computedCache[ attr ]);
       }, this);
 
       return this;
-    })
+    }),
+
+    invalidateCacheProp: function ( attr ) {
+      var computedCache = this._computedCache;
+      delete computedCache[ attr ];
+    },
+
+    runComputed: function ( attr, value ) {
+      var computedProps = this._computedProps;
+      var computedCache = this._computedCache;
+      computedCache[ attr ] = computedProps[ attr ].call( this, value );
+    }
 
   }, {
 
